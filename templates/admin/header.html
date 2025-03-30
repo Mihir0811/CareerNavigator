@@ -1,0 +1,136 @@
+<header class="header">
+    <div class="search-bar">
+        <i class="fas fa-search"></i>
+        <input type="text" placeholder="Search...">
+    </div>
+    <div class="header-right">
+        <div class="notifications">
+            <i class="fas fa-bell" onclick="toggleNotificationDropdown()"></i>
+            <span class="notification-badge" id="notification-badge" style="display: none;">0</span>
+            <div id="notification-dropdown" class="notification-dropdown" style="display: none;">
+                <ul id="notification-list">
+                    <li>No new notifications</li>
+                </ul>
+            </div>
+        </div>
+        <style>
+            .notification-dropdown {
+    position: absolute;
+    right: 0;
+    top: 50px;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    width: 300px;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+}
+
+.notification-dropdown ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+}
+
+.notification-dropdown li {
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+    cursor: pointer;
+}
+
+.notification-dropdown li:last-child {
+    border-bottom: none;
+}
+
+.notification-dropdown li:hover {
+    background-color: #f5f5f5;
+}
+.notification-item.new {
+    background-color: #f0f8ff;  
+}
+
+        </style>
+        
+        <div class="profile-dropdown">
+            <img src="https://ui-avatars.com/api/?name={{ session['admin_name'] }}" alt="Profile" class="profile-image">
+            <div class="profile-info">
+                <span class="profile-name">{{ session['admin_name'] }}</span>
+                <span class="profile-role">Admin User</span>
+            </div>
+        </div>
+    </div>
+    <script>
+      let notificationCount = 0;
+
+function toggleNotificationDropdown() {
+    const dropdown = document.getElementById('notification-dropdown');
+    dropdown.style.display = dropdown.style.display === 'none' ? 'block' : 'none';
+
+    // If the count is greater than 0, reset the count in the backend (via API)
+    if (notificationCount > 0) {
+        resetNotificationCount();
+    }
+}
+
+function resetNotificationCount() {
+    // Send a request to the backend to reset the count
+    fetch('/mark_notifications_as_read', {
+        method: 'POST',
+    })
+        .then(response => response.json())
+        .then(data => {
+            console.log(data);  // Log the response
+            notificationCount = 0;  // Reset the count on the frontend
+            const badgeElement = document.getElementById('notification-badge');
+            badgeElement.style.display = 'none';  // Hide the badge
+            badgeElement.innerText = notificationCount;
+        })
+        .catch(error => console.error('Error marking notifications as read:', error));
+}
+
+function updateNotifications() {
+    fetch('/user_notifications')
+        .then(response => response.json())
+        .then(data => {
+            const badgeElement = document.getElementById('notification-badge');
+            const list = document.getElementById('notification-list');
+
+            // Update notification count if there are new notifications
+            if (data.count > 0) {
+                badgeElement.style.display = 'inline-block';
+                badgeElement.innerText = data.count;
+                notificationCount = data.count;  // Update notification count
+            } else {
+                badgeElement.style.display = 'none';  // Hide badge if no notifications
+                notificationCount = 0;  // Reset count if no notifications
+            }
+
+            // Update dropdown with new notifications
+            list.innerHTML = '';  // Clear old notifications
+            if (data.notifications.length > 0) {
+                data.notifications.forEach(notification => {
+                    const item = document.createElement('li');
+                    item.innerHTML = `
+                        <strong>${notification.title}</strong>
+                        <p>${notification.message}</p>
+                        <small>${notification.schedule_time}</small>
+                    `;
+                    list.appendChild(item);
+                });
+            } else {
+                const noNotificationItem = document.createElement('li');
+                noNotificationItem.innerText = 'No new notifications';
+                list.appendChild(noNotificationItem);
+            }
+        })
+        .catch(error => console.error('Error fetching notifications:', error));
+}
+
+// Update notifications every 30 seconds
+setInterval(updateNotifications, 30000);
+updateNotifications(); // Initial fetch
+
+
+    </script>
+    
+</header>

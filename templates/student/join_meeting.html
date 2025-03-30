@@ -1,0 +1,61 @@
+{% extends 'student/stud-base.html' %}
+{% block title %}Join Meeting{% endblock %}
+{% block content %}
+<div class="section-header">
+    <h1>Join Meeting</h1>
+</div>
+
+<div class="meeting-container">
+    <p class="text-success">
+        Welcome, {{ student_name }}. You are about to join your meeting.
+    </p>
+
+    <!-- Daily.co meeting container -->
+    <div id="daily-container" style="height: 600px; width: 100%; border: 1px solid #ddd; margin-top: 20px;"></div>
+</div>
+
+<script crossorigin src="https://unpkg.com/@daily-co/daily-js"></script>
+<script>
+    // Ensure the #daily-container exists before attaching the iframe
+    const dailyContainer = document.getElementById("daily-container");
+
+    if (dailyContainer) {
+        const callFrame = window.DailyIframe.createFrame(dailyContainer, {
+            iframeStyle: {
+                position: "relative",
+                width: "100%",
+                height: "100%",
+                border: "none"
+            },
+            showLeaveButton: true
+        });
+
+        callFrame.join({
+            url: "{{ session_link }}"
+        });
+
+        // Event Listener: Meeting Joined
+        callFrame.on("joined-meeting", () => {
+            console.log("You have joined the meeting.");
+        });
+
+        // Event Listener: Participant Joined
+        callFrame.on("participant-joined", (event) => {
+            console.log("Participant joined:", event.participant);
+        });
+
+        // Event Listener: Participant Left
+        callFrame.on("participant-left", (event) => {
+            console.log("Participant left:", event.participant);
+        });
+
+        // Event Listener: Meeting Ended
+        callFrame.on("left-meeting", () => {
+            console.log("You have left the meeting.");
+            alert("You have left the meeting.");
+        });
+    } else {
+        console.error("Daily container not found.");
+    }
+</script>
+{% endblock %}

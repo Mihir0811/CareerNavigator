@@ -1,0 +1,189 @@
+{% extends 'admin/base.html' %}
+{% block title %}Admins - Admin Panel{% endblock %}
+{% block content %}
+    <!-- <h2 class="section-title">Manage Admins</h2>
+
+    <div class="table-actions">
+        <div class="search-filters">
+            <div class="search-box">
+                <i class="fas fa-search"></i>
+                <input type="text" placeholder="Search admins...">
+            </div>
+            <select class="filter-select">
+                <option value="">All Roles</option>
+                <option value="super">Super Admin</option>
+                <option value="content">Content Admin</option>
+                <option value="user">User Admin</option>
+            </select>
+        </div>
+        <button class="add-btn" data-modal="addAdminModal">
+            <i class="fas fa-plus"></i> Add Admin
+        </button>
+    </div>
+
+    <div class="table-container">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Role</th>
+                    <th>Last Login</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>
+                        <div class="user-info">
+                            <img src="https://ui-avatars.com/api/?name=Admin+User" alt="Admin User">
+                            <span>Admin User</span>
+                        </div>
+                    </td>
+                    <td>admin@example.com</td>
+                    <td>Super Admin</td>
+                    <td>Today, 9:30 AM</td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="edit-btn"><i class="fas fa-edit"></i></button>
+                            <button class="delete-btn"><i class="fas fa-trash"></i></button>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <div class="user-info">
+                            <img src="https://ui-avatars.com/api/?name=Content+Manager" alt="Content Manager">
+                            <span>Content Manager</span>
+                        </div>
+                    </td>
+                    <td>content@example.com</td>
+                    <td>Content Admin</td>
+                    <td>Yesterday, 3:15 PM</td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="edit-btn"><i class="fas fa-edit"></i></button>
+                            <button class="delete-btn"><i class="fas fa-trash"></i></button>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <div class="user-info">
+                            <img src="https://ui-avatars.com/api/?name=User+Manager" alt="User Manager">
+                            <span>User Manager</span>
+                        </div>
+                    </td>
+                    <td>user@example.com</td>
+                    <td>User Admin</td>
+                    <td>Feb 20, 2024</td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="edit-btn"><i class="fas fa-edit"></i></button>
+                            <button class="delete-btn"><i class="fas fa-trash"></i></button>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div> -->
+
+    <div class="profile container mt-5">
+
+        <div class="row tm-content-row">
+            <div class="tm-block-col tm-col-avatar" style="padding: 10px;">
+                <div class="tm-bg-primary-dark tm-block tm-block-avatar" style="border-radius: 8px !important;">
+                    <div class="title d-flex align-items-center justify-content-between">
+                        <h2 class="tm-block-title mb-0">Change Avatar</h2>
+                        <a href="javascript:void(0)" onclick="document.getElementById('fileInput').click()"
+                            style="padding: 12px !important;">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" style="height: 25px;">
+                                <path fill="#fff" d="M471.6 21.7c-21.9-21.9-57.3-21.9-79.2 0L362.3 51.7l97.9 97.9 30.1-30.1c21.9-21.9 21.9-57.3 0-79.2L471.6 21.7zm-299.2 220c-6.1 6.1-10.8 13.6-13.5 21.9l-29.6 88.8c-2.9 8.6-.6 18.1 5.8 24.6s15.9 8.7 24.6 5.8l88.8-29.6c8.2-2.7 15.7-7.4 21.9-13.5L437.7 172.3 339.7 74.3 172.4 241.7zM96 64C43 64 0 107 0 160L0 416c0 53 43 96 96 96l256 0c53 0 96-43 96-96l0-96c0-17.7-14.3-32-32-32s-32 14.3-32 32l0 96c0 17.7-14.3 32-32 32L96 448c-17.7 0-32-14.3-32-32l0-256c0-17.7 14.3-32 32-32l96 0c17.7 0 32-14.3 32-32s-14.3-32-32-32L96 64z"/>
+                            </svg>
+                        </a>
+                    </div>
+                    <form action="" method="post" enctype="multipart/form-data" style="margin-top: 15px;"> 
+                        <div class="tm-avatar-container mt-4">
+                            <img src="" alt="" class="tm-avatar img-fluid mb-4"
+                                id="avatarImg" />
+                            <a href="javascript:void(0)" class="tm-avatar-delete-link"
+                                onclick="document.getElementById('fileInput').click()"
+                                style="padding: 12px !important;">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+                                    <path fill="#ffffff"
+                                        d="M288 109.3L288 352c0 17.7-14.3 32-32 32s-32-14.3-32-32l0-242.7-73.4 73.4c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3l128-128c12.5-12.5 32.8-12.5 45.3 0l128 128c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L288 109.3zM64 352l128 0c0 35.3 28.7 64 64 64s64-28.7 64-64l128 0c35.3 0 64 28.7 64 64l0 32c0 35.3-28.7 64-64 64L64 512c-35.3 0-64-28.7-64-64l0-32c0-35.3 28.7-64 64-64zM432 456a24 24 0 1 0 0-48 24 24 0 1 0 0 48z" />
+                                </svg>
+                            </a>
+                        </div>
+                        <input type="file" name="avatar" id="fileInput" hidden>
+                        <button type="submit" class="btn btn-primary btn-block text-uppercase upload-btn">
+                            Upload New Photo
+                        </button>
+                    </form>
+                </div>
+            </div>
+            <div class="tm-block-col tm-col-account-settings" style="padding: 10px;">
+                <div class="tm-bg-primary-dark tm-block tm-block-settings" style="border-radius: 8px; !important">
+                    <h2 class="tm-block-title">Account Settings</h2>
+                    <form action="" class="tm-signup-form row" method="post">
+                        <div class="form-group col-lg-6">
+                            <label for="username">Username</label>
+                            <input id="username" name="username" type="text" class="form-control validate" />
+                        </div>
+                        <div class="form-group col-lg-6">
+                            <label for="email">Account Email</label>
+                            <input id="email" name="email" type="email" class="form-control validate" />
+                        </div>
+                        <div class="form-group col-lg-6">
+                            <label for="oldPass">Old Password</label>
+                            <input id="oldPass" name="oldPass" type="password"
+                                class="form-control validate" />
+                        </div>
+                        <div class="form-group col-lg-6">
+                            <label for="newPass">New Password</label>
+                            <input id="newPass" name="newPass" type="password"
+                                class="form-control validate" />
+                        </div>
+                        <div class="form-group col-lg-6">
+                            <label for="pno">Phone</label>
+                            <input id="pno" name="pno" type="tel" min="10" class="form-control validate" />
+                        </div>
+                        <div class="form-group col-lg-6 pb-4">
+                            <label class="tm-hide-sm">&nbsp;</label>
+                            <button type="submit" class="btn btn-primary btn-block text-uppercase update-profile-btn">
+                                Update Your Profile
+                            </button>
+                        </div>
+                        <div class="col-12 pt-4">
+                            <a href="/" class="btn btn-primary btn-block text-uppercase delete-account-btn"  style="border-radius: 8px !important;color: white;background-color: red;">
+                                Delete Your Account
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+        document.getElementById('fileInput').addEventListener('change', function (event) {
+
+            const file = event.target.files[0];
+            const uploadIcon = document.querySelector('.img-upload-btn');
+
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+
+                    document.getElementById('avatarImg').src = e.target.result;
+
+                    document.getElementById('avatarImg').alt = 'Profile Image';
+
+                    uploadIcon.style.display = 'none';
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+    </script>
+{% endblock %}
