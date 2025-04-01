@@ -1,0 +1,107 @@
+{% extends 'counselor/counselor_base.html' %}
+{% block coun_content %}
+    <div class="section-header">
+        <h1>Profile</h1>
+        <!-- <button class="btn-primary edit-profile-btn">
+            <i class="fas fa-edit"></i> Edit Profile
+        </button> -->
+    </div>
+
+    <div class="profile-container">
+        <div class="profile-sidebar">
+            <div class="profile-image-container">
+                <img src="{{ counselor_data.profile_picture if counselor_data.profile_picture else 'https://ui-avatars.com/api/?name=' + session['counselor_name'] | urlencode }}" alt="{{ session['counselor_name'] }}" class="profile-image">
+                <button class="change-photo-btn">
+                    <i class="fas fa-camera"></i>
+                </button>
+            </div>
+            <div class="profile-stats">
+                <div class="stat-item">
+                    <i class="fas fa-calendar-check"></i>
+                    <div class="stat-details">
+                        <span class="stat-value">{{ total_sessions }}</span>
+                        <span class="stat-label">Sessions</span>
+                    </div>
+                </div>
+                <div class="stat-item">
+                    <i class="fas fa-users"></i>
+                    <div class="stat-details">
+                        <span class="stat-value">{{ total_students }}</span>
+                        <span class="stat-label">Students</span>
+                    </div>
+                </div>
+                <div class="stat-item">
+                    <i class="fas fa-star"></i>
+                    <div class="stat-details">
+                        <span class="stat-value">{{ avg_rating }}</span>
+                        <span class="stat-label">Rating</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="profile-details">
+            <div class="profile-section">
+                <h2>Personal Information</h2>
+                <div class="profile-info-grid">
+                    <div class="profile-info-item">
+                        <label>Full Name</label>
+                        <p>{{ counselor_data.full_name }}</p>
+                    </div>
+                    <div class="profile-info-item">
+                        <label>Email</label>
+                        <p>{{ counselor_data.email }}</p>
+                    </div>
+                    <div class="profile-info-item">
+                        <label>Phone</label>
+                        <p>{{ counselor_data.contact_number }}</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="profile-section">
+                <h2>Specializations</h2>
+                <div class="specialization-tags">
+                    <span class="tag">{{ counselor_data.specialization }}</span>
+                </div>
+            </div>
+
+            <div class="profile-section">
+                <h2>Interests</h2>
+                <div class="specialization-tags">
+                    {% for interest in interests %}
+                        <span class="tag">{{ interest }}</span>
+                    {% endfor %}
+                </div>
+            </div>
+            
+            
+            <div class="profile-section">
+                <h2>Bio</h2>
+                <p class="profile-bio">
+                    {{ counselor_data.bio }}
+                </p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="availability-section">
+        <div class="section-header">
+            <h2>Availability</h2>
+            <!-- <button class="btn-outline edit-availability-btn">
+                <i class="fas fa-edit"></i> Edit Availability
+            </button> -->
+        </div>
+    
+        <div class="availability-schedule">
+            {% for day, time_range in schedule_dict.items() %}
+            <div class="schedule-day">
+                <div class="day-header">{{ day }}</div>
+                <div class="time-slots">
+                    <div class="time-slot available">{{ time_range }}</div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+{% endblock %}

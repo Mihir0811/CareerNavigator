@@ -1,0 +1,100 @@
+{% extends 'counselor/counselor_base.html' %}
+{% block coun_content %}
+<div class="section-header">
+    <h1>Meeting with {{ student_name }}</h1>
+</div>
+
+<div class="meeting-container">
+    <p class="text-success">
+        Your meeting is live. Waiting for the student to join.
+    </p>
+    <!-- <ul>
+        <li><strong>Session Link:</strong> <a href="{{ session_link }}" target="_blank">{{ session_link }}</a></li>
+    </ul> -->
+
+    <!-- Daily.co Video Call Frame -->
+    <div id="daily-container" style="height: 600px; width: 100%; border: 1px solid #ddd; margin-top: 20px;"></div>
+</div>
+
+<!-- Include the Daily.co JavaScript SDK -->
+<script crossorigin src="https://unpkg.com/@daily-co/daily-js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@daily-co/daily-js"></script>
+
+<script>
+    // Get the container element
+const dailyContainer = document.getElementById("daily-container");
+
+if (dailyContainer) {
+    const callFrame = window.DailyIframe.createFrame(dailyContainer, {
+        iframeStyle: {
+            position: "relative",
+            width: "100%",
+            height: "100%",
+            border: "1px solid #ddd"
+        },
+        showLeaveButton: true
+    });
+
+    // Join the meeting
+    callFrame.join({
+        url: "{{ session_link }}"
+    });
+
+    // Event Listener: Meeting Joined
+    callFrame.on("joined-meeting", () => {
+        console.log("You have joined the meeting.");
+    });
+
+    // Event Listener: Participant Joined
+    callFrame.on("participant-joined", (event) => {
+        console.log("Participant joined:", event.participant);
+    });
+
+    // Event Listener: Participant Left
+    callFrame.on("participant-left", (event) => {
+        console.log("Participant left:", event.participant);
+    });
+
+    // Event Listener: Meeting Ended
+    callFrame.on("left-meeting", async () => {
+    console.log("Counselor has left the meeting.");
+    alert("You have left the meeting.");
+
+    try {
+        const response = await fetch('/update_meeting_status', {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ appointment_id: "{{ appointment_id }}" }) // Pass the appointment ID
+        });
+
+        const result = await response.json();
+        if (response.ok) {
+            console.log(result.message);
+        } else {
+            console.error("Error response:", result.message);
+        }
+    } catch (error) {
+        console.error("Error updating meeting status:", error);
+    }
+
+    window.location.href = "/coun_room";
+});
+
+} else {
+    console.error("Daily container not found.");
+}
+
+</script>
+<style>
+    #daily-container {
+    height: 600px;
+    width: 100%;
+    border: 1px solid #ddd;
+    margin-top: 10px;
+    position: relative;
+}
+
+</style>
+{% endblock %}
