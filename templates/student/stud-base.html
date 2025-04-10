@@ -485,8 +485,9 @@
 
         .typing-text {
             font-size: 24px;
-            color: #333;
+            color: transparent;
             position: relative;
+            
             display: inline-block;
         }
 
@@ -796,7 +797,7 @@
 <script>
     // Function to fetch notifications dynamically from the server
     function fetchNotifications(callback) {
-        fetch('/get_notifications')
+        fetch('/student_notifications')
             .then(response => response.json())
             .then(data => {
                 const notificationBadge = document.getElementById('notificationBadge');

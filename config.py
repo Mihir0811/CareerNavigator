@@ -12,8 +12,10 @@ class Config:
     MAIL_USE_TLS = True
     MAIL_USERNAME = os.getenv('MAIL_USERNAME', 'careernavigator20@gmail.com')
     MAIL_PASSWORD = os.getenv('MAIL_PASSWORD', 'sogi qsrt ockx uomu')
-    DAILY_API_URL = "https://api.daily.co/v1/rooms"
-    DAILY_API_KEY = "8b6264d97e1c2c77f2847062277e693cc1db2ed3f5395ddc3d6f5b3d32686712"
+    # DAILY_API_URL = "https://api.daily.co/v1/rooms"
+    # DAILY_API_KEY = "125f43818b58a38b664cf652b9b978115e7441d4367aee99777f4f2e131d7f36"
+    # WHEREBY_API_URL = "https://api.whereby.dev/v1/meetings"
+    # WHEREBY_API_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczovL2FjY291bnRzLmFwcGVhci5pbiIsImF1ZCI6Imh0dHBzOi8vYXBpLmFwcGVhci5pbi92MSIsImV4cCI6OTAwNzE5OTI1NDc0MDk5MSwiaWF0IjoxNzQ0MDM1MDIzLCJvcmdhbml6YXRpb25JZCI6MzEzNzkyLCJqdGkiOiJiZDA5YzY0YS04Y2NjLTQ1MjEtOTM4YS00Mzg5MjgwZjMzZWYifQ.nNe0sMP1kkPeLlDUA4x7v42ycT00V1lBSCuGzQyLSus"
     RAZORPAY_KEY_ID = 'rzp_test_1DP5mmOlF5G5ag'  # Test Key
     RAZORPAY_KEY_SECRET = 'thisFPVNwAHb44dkixvH2Nw'  # Test Secret
     STRIPE_PUBLISHABLE_KEY = 'pk_test_51R2sFf4DuQBaqDtlKmdq4qlXcReHYqaAFDD5gNzT41gg5Jl5y51KIqbAwS0uLByeFdwc55RO7o6WlkjRRRXHnBP700Gnq5NGkt'

@@ -7,7 +7,7 @@ import humanize
 import requests
 from sqlalchemy import and_, func, or_
 from model import db,Student,Interest,Notification,Counselor,CounselorSchedule,Feedback,Resource,Payment,Admin,Appointment,AdminLogActivity,CounselorLogActivity
-from datetime import datetime,timezone
+from datetime import datetime, timedelta,timezone
 from apscheduler.schedulers.background import BackgroundScheduler 
 from flask_mail import Mail,Message
 from flask_migrate import Migrate
@@ -42,32 +42,67 @@ razorpay_client = razorpay.Client(auth=("rzp_test_pUXJB2ZJXV0sMk", "9eOkNocXPoKB
 # ------------------------------------------ Api Calling For Video Call-----------------------
 
 
-def create_daily_room():
+# def create_daily_room():
+#     try:
+#         api_url = app.config['DAILY_API_URL']
+#         api_key = app.config['DAILY_API_KEY']
+
+#         headers = {
+#             "Authorization": f"Bearer {api_key}",
+#             "Content-Type": "application/json"
+#         }
+
+#         room_data = {
+#             "name": f"room-{uuid.uuid4()}",
+#             "privacy": "public",
+#             "properties": {
+#                 "enable_chat": True,
+#                 "start_audio_off": False,
+#                 "start_video_off": False,
+#             }
+#         }
+#         print("Creating Daily.co room with:")
+#         print("URL:", api_url)
+#         print("Headers:", headers)
+#         print("Room data:", room_data)
+
+#         response = requests.post(api_url, headers=headers, json=room_data)
+#         # print("Response status:", response.status_code)
+#         print("Response JSON:", response.json())
+#         response.raise_for_status()  # Raise an exception for HTTP errors
+
+#         return response.json()  # Returns the created room details
+#     except Exception as e:
+#         print(f"Error creating Daily.co room: {e}")
+#         return None
+
+def create_whereby_room():
+    api_url = "https://api.whereby.dev/v1/meetings"
+    api_key = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczovL2FjY291bnRzLmFwcGVhci5pbiIsImF1ZCI6Imh0dHBzOi8vYXBpLmFwcGVhci5pbi92MSIsImV4cCI6OTAwNzE5OTI1NDc0MDk5MSwiaWF0IjoxNzQ0MDM1MDIzLCJvcmdhbml6YXRpb25JZCI6MzEzNzkyLCJqdGkiOiJiZDA5YzY0YS04Y2NjLTQ1MjEtOTM4YS00Mzg5MjgwZjMzZWYifQ.nNe0sMP1kkPeLlDUA4x7v42ycT00V1lBSCuGzQyLSus"
+
+    headers = {
+        "Authorization": f"Bearer {api_key}",
+        "Content-Type": "application/json"
+    }
+
+    now = datetime.utcnow()
+    payload = {
+        "endDate": (now + timedelta(hours=1)).isoformat() + "Z",
+        "fields": ["hostRoomUrl", "roomUrl", "roomName"]
+    }
+
     try:
-        api_url = app.config['DAILY_API_URL']
-        api_key = app.config['DAILY_API_KEY']
+        response = requests.post(api_url, json=payload, headers=headers)
+        response.raise_for_status()
 
-        headers = {
-            "Authorization": f"Bearer {api_key}",
-            "Content-Type": "application/json"
-        }
+        data = response.json()
+        print("Room created:", data)
 
-        room_data = {
-            "name": f"room-{uuid.uuid4()}",
-            "properties": {
-                "enable_chat": True,
-                "start_audio_off": False,
-                "start_video_off": False
-            }
-        }
-
-        response = requests.post(api_url, headers=headers, json=room_data)
-        response.raise_for_status()  # Raise an exception for HTTP errors
-
-        return response.json()  # Returns the created room details
+        return data
     except Exception as e:
-        print(f"Error creating Daily.co room: {e}")
+        print("Failed to create Whereby room:", e)
         return None
+
     
 # ------------------------------ Recent Activitiy Logs --------------------------------
 def admin_activity(activity_type, activity_desc, created_by):
@@ -310,7 +345,6 @@ def students():
             return redirect(url_for('admin_login'))
         students = Student.query.all()
         return render_template('admin/manage_stud.html', active_page='students',students=students)
-
 
 @app.route('/edit_stud/<int:student_id>', methods=['GET', 'PUT'])
 def edit_stud(student_id):
@@ -680,37 +714,31 @@ def notifications():
         return jsonify({'msg':'Notiication Added Successfully!'}), 201
     
     
-@app.route('/get_notifications', methods=['GET'])
-def get_notifications():
+@app.route('/admin_notifications', methods=['GET'])
+def admin_notifications():
     try:
-        user_role = session.get('user_type') 
-        
-        if not user_role:
-            return jsonify({'message': 'User not logged in or session expired'}), 400
-
-        # Fetch notifications based on recipients
-        notifications = Notification.query.filter(
-        and_(
-        (Notification.recipients == 'all users') | (Notification.recipients == user_role),
-        (Notification.status == 'sent')
-        )
+        notifications = Notification.query.filter_by(
+            recipients='admins', status='sent'
         ).order_by(Notification.created_at.desc()).limit(3).all()
 
-        notification_list = []
-        for notification in notifications:
-            notification_list.append({
+        notification_list = [
+            {
                 'id': notification.id,
                 'title': notification.title,
                 'message': notification.message,
                 'created_at': notification.created_at.strftime('%Y-%m-%d %H:%M:%S'),
                 'status': notification.status
-            })
+            }
+            for notification in notifications
+        ]
 
         return jsonify({'notifications': notification_list})
 
     except Exception as e:
-        print(f"Error fetching notifications: {e}")
+        print(f"Error fetching notifications for admins: {e}")
         return jsonify({'message': 'Error fetching notifications'}), 500
+
+
 
 
 # @app.route('/user_notifications', methods=['GET'])
@@ -920,9 +948,44 @@ def student_login():
         else:
             return jsonify({'success': False, 'message': 'Invalid username or password'}), 401
         
-@app.route('/forgot_pwd')
+@app.route('/forgot_pwd', methods=['GET', 'POST'])
 def forgot_pwd():
+    if request.method == 'POST':
+        email = request.form.get('email')
+        student = Student.query.filter_by(email=email).first()
+
+        if student:
+            return redirect(url_for('reset_pwd', email=email))
+        else:
+            flash('Email not found. Please try again.', 'error')
+            return render_template('student/forgot_pwd.html')
+        
     return render_template('student/forgot_pwd.html')
+
+
+@app.route('/reset_pwd/<email>', methods=['GET', 'POST'])
+def reset_pwd(email):
+    student = Student.query.filter_by(email=email).first()
+
+    if not student:
+        flash("Invalid email or user does not exist.", "error")
+        return redirect(url_for('forgot_pwd'))
+
+    if request.method == 'POST':
+        new_password = request.form.get('new_password')
+        confirm_password = request.form.get('confirm_password')
+
+        if new_password != confirm_password:
+            flash("Passwords do not match. Please try again.", "error")
+            return redirect(url_for('reset_pwd', email=email))
+
+        student.password = new_password
+        db.session.commit()
+
+        flash("Password successfully reset. You can now log in.", "success")
+        return redirect(url_for('student_login'))
+
+    return render_template('student/reset_pwd.html', email=email)
 
 @app.route('/stud_dash')
 def stud_dash():
@@ -1248,6 +1311,31 @@ def update_student():
     
     return jsonify({'error': 'Student not found'}), 404
 
+@app.route('/student_notifications', methods=['GET'])
+def student_notifications():
+    try:
+        notifications = Notification.query.filter_by(
+            recipients='students', status='sent'
+        ).order_by(Notification.created_at.desc()).limit(3).all()
+
+        notification_list = [
+            {
+                'id': notification.id,
+                'title': notification.title,
+                'message': notification.message,
+                'created_at': notification.created_at.strftime('%Y-%m-%d %H:%M:%S'),
+                'status': notification.status
+            }
+            for notification in notifications
+        ]
+
+        return jsonify({'notifications': notification_list})
+
+    except Exception as e:
+        print(f"Error fetching notifications for students: {e}")
+        return jsonify({'message': 'Error fetching notifications'}), 500
+
+
 @app.route('/stud_logout')
 def stud_logout():
     session.pop('student_name',None)
@@ -1572,11 +1660,12 @@ def start_meeting(appointment_id):
             return "Meeting not approved to start.", 400
 
         if not appointment.session_link:
-            room_details = create_daily_room()
+            # room_details = create_daily_room()
+            room_details = create_whereby_room()
             if not room_details:
                 return "Failed to create meeting room.", 500
 
-            appointment.session_link = room_details.get('url')
+            appointment.session_link = room_details['roomUrl']
             appointment.student_status = 'upcoming'  
             db.session.commit()
 
@@ -1615,12 +1704,12 @@ def update_meeting_status():
         appointment.student_status = 'completed'
         db.session.commit()
 
-        if counselor and student:
-            counselor_activity(
-                activity_type="Session Completed",
-                activity_desc=f"Meeting with {student.name} on {appointment.date} at {appointment.time_slot} has been marked as completed.",
-                created_by=counselor.full_name
-            )
+        # if counselor and student:
+        #     counselor_activity(
+        #         activity_type="Session Completed",
+        #         activity_desc=f"Meeting with {student.name} on {appointment.date} at {appointment.time_slot} has been marked as completed.",
+        #         created_by=counselor.full_name
+        #     )
 
         return {"message": "Meeting status updated to completed."}, 200
     except Exception as e:
@@ -1810,7 +1899,6 @@ def counselor_feedback_chart(counselor_id):
 
 
 
-
 @app.route('/coun_profile')
 def coun_profile():
     if 'counselor_id' not in session:
@@ -1851,6 +1939,70 @@ def coun_profile():
         avg_rating=avg_rating,
         interests=interests
     )
+
+@app.route('/update_coun_profile', methods=['POST'])
+def update_coun_profile():
+    # Ensure you are receiving the form data correctly
+    full_name = request.form.get('full_name')
+    email = request.form.get('email')
+    contact_number = request.form.get('contact_number')
+    specialization = request.form.get('specialization')
+    bio = request.form.get('bio')
+
+    # Validate the form data
+    if not full_name or not email or not contact_number or not specialization:
+        return jsonify({"success": False, "message": "All fields are required."})
+
+    # Perform the database update
+    try:
+        # Assuming you have a 'Counselor' model with an 'id' attribute to identify the counselor
+        counselor = Counselor.query.filter_by(id=session['counselor_id']).first()
+        counselor.full_name = full_name
+        counselor.email = email
+        counselor.contact_number = contact_number
+        counselor.specialization = specialization
+        counselor.bio = bio
+
+        # Commit the changes to the database
+        db.session.commit()
+
+        return jsonify({"success": True})
+    except Exception as e:
+        print(e)
+        return jsonify({"success": False, "message": "Failed to update profile."})
+
+@app.route('/counselor_notifications', methods=['GET'])
+def counselor_notifications():
+    try:
+        notifications = Notification.query.filter_by(
+            recipients='counselors', status='sent'
+        ).order_by(Notification.created_at.desc()).limit(3).all()
+
+        notification_list = [
+            {
+                'id': notification.id,
+                'title': notification.title,
+                'message': notification.message,
+                'created_at': notification.created_at.strftime('%Y-%m-%d %H:%M:%S'),
+                'status': notification.status
+            }
+            for notification in notifications
+        ]
+
+    
+        # counselor_activity(
+        #         activity_type="Notification Received",
+        #         activity_desc=f"New notifications received: {', '.join([n.title for n in notifications])}",
+        #         created_by="System" 
+        #     )
+
+        return jsonify({'notifications': notification_list})
+    
+    except Exception as e:
+        print(f"Error fetching notifications for counselors: {e}")
+        return jsonify({'notifications': [], 'error': 'Failed to fetch notifications'}), 500
+
+
 
 @app.route('/coun_logout')
 def coun_logout():

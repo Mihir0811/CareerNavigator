@@ -455,15 +455,18 @@
     <div class="overview-cards">
         <div class="card profile-completion">
             <div class="card-header">
-                <h3>Profile Completion</h3>
+                <h3>Your Profile Details</h3>
                 <i class="fas fa-user-check"></i>
             </div>
             <div class="card-content">
-                <div class="progress-circle" data-progress="75">
+                <!-- <div class="progress-circle" data-progress="75">
                     <span class="progress-number">75%</span>
+                </div> -->
+                <div>
+                    <h1>{{ session['student_name'] }}</h1>
                 </div>
                 <p>Complete your profile to get personalized career recommendations</p>
-                <button class="btn-primary">Complete Profile</button>
+                <!-- <button class="btn-primary">Complete Profile</button> -->
             </div>
         </div>
 
